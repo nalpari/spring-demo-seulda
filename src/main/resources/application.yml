@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: spring-demo
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:../test
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    generate-ddl: true
+  sql:
+    init:
+      platform: h2
+      mode: always
+      schema-locations: classpath:/schema.sql
+      data-locations: classpath:/data.sql
+
+logging:
+  level:
+    root: info
+    org.hibernate.SQL: debug
+    net.devgrr.springdemo: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: "env,beans"
+server:
+  port: 8080
