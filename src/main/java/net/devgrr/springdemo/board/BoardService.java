@@ -28,28 +28,28 @@ public class BoardService {
 
 
     public void insertBoard(BoardRequest req) {
-//        Board board = new Board();
-//        board.setTitle(req.getTitle());
-//        board.setContent(req.getContent());
-//        boardRepository.save(board);
+        Board board = new Board();
+        board.setTitle(req.title());
+        board.setContent(req.content());
+        boardRepository.save(board);
     }
 
 
     public void updateBoard(BoardRequest req) throws BaseException {
-//        Board board = selectBoardById(req.getId());
-//        if (req.getTitle() != null) {
-//            board.setTitle(req.getTitle());
-//        }
-//        if (req.getContent() != null) {
-//            board.setContent(req.getContent());
-//        }
-//        board.setUpdatedAt(LocalDateTime.now());
-//        boardRepository.save(board);
+        Board board = selectBoardById(req.id());
+        if (req.title() != null) {
+            board.setTitle(req.title());
+        }
+        if (req.content() != null) {
+            board.setContent(req.content());
+        }
+        board.setUpdatedAt(LocalDateTime.now());
+        boardRepository.save(board);
     }
 
 
-    public void deleteBoard(BoardRequest req) throws BaseException {
-//        Board board = selectBoardById(req.getId());
-//        boardRepository.delete(board);
+    public void deleteBoard(Integer id) throws BaseException {
+        Board board = selectBoardById(id);
+        boardRepository.delete(board);
     }
 }

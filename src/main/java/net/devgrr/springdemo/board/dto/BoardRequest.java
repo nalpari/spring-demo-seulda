@@ -1,15 +1,10 @@
 package net.devgrr.springdemo.board.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
-public class BoardRequest {
-    private final Integer id;
-    private final String title;
-    private final String content;
-}
+public record BoardRequest(
+        @NotNull(message = "필수값: id", groups = BoardValidationGroups.idGroup.class) Integer id,
+        @NotBlank(message = "필수값: title", groups = BoardValidationGroups.articleGroup.class) String title,
+        @NotBlank(message = "필수값: content", groups = BoardValidationGroups.articleGroup.class) String content
+) {}

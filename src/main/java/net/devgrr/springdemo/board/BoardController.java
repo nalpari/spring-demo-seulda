@@ -4,13 +4,16 @@ import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import net.devgrr.springdemo.board.dto.BoardRequest;
+import net.devgrr.springdemo.board.dto.BoardValidationGroups;
 import net.devgrr.springdemo.board.entity.Board;
 import net.devgrr.springdemo.config.exception.BaseException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
+@Validated
 @RequestMapping("/board")
 @RequiredArgsConstructor
 @Tag(name = "BoardController", description = "게시판 API")
@@ -32,24 +35,24 @@ public class BoardController {
     }
 
     @Operation(description = "게시글을 등록한다.")
-    @PostMapping("")
+    @PostMapping
     // 201
-    public void insertBoard(@RequestBody BoardRequest req) {
-//        return req.getId()+" insertBoard";
+    public void insertBoard(@Validated(BoardValidationGroups.articleGroup.class) @RequestBody BoardRequest req) {
+        boardService.insertBoard(req);
     }
 
     @Operation(description = "게시글을 수정한다.")
-    @PutMapping("")
+    @PutMapping
     // 200
-    public void updateBoard(@RequestBody BoardRequest req) throws BaseException {
-//        return req.getId()+" updateBoard";
+    public void updateBoard(@Validated(BoardValidationGroups.idGroup.class) @RequestBody BoardRequest req) throws BaseException {
+        boardService.updateBoard(req);
     }
 
     @Operation(description = "게시글을 삭제한다.")
-    @DeleteMapping("")
+    @DeleteMapping("/{id}")
     // 204
-    public void deleteBoard(@RequestBody BoardRequest req) throws BaseException {
-//        return req.getId()+" deleteBoard";
+    public void deleteBoard(@PathVariable("id") Integer id) throws BaseException {
+        boardService.deleteBoard(id);
     }
 
 }
