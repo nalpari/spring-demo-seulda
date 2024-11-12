@@ -21,19 +21,16 @@ public class BoardService {
         return boardRepository.findAll();
     }
 
-
     public Board selectBoardById(Integer id) throws BaseException {
         return boardRepository.findById(id).orElseThrow(() -> new BaseException(ErrorCode.INVALID_INPUT_VALUE, "Board not found with id: " + id));
     }
 
-
-    public void insertBoard(BoardRequest req) {
+    public Integer insertBoard(BoardRequest req) {
         Board board = new Board();
         board.setTitle(req.title());
         board.setContent(req.content());
-        boardRepository.save(board);
+        return boardRepository.save(board).getId();
     }
-
 
     public void updateBoard(BoardRequest req) throws BaseException {
         Board board = selectBoardById(req.id());
@@ -46,7 +43,6 @@ public class BoardService {
         board.setUpdatedAt(LocalDateTime.now());
         boardRepository.save(board);
     }
-
 
     public void deleteBoard(Integer id) throws BaseException {
         Board board = selectBoardById(id);

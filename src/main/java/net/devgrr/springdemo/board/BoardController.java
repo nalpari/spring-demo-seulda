@@ -3,10 +3,12 @@ package net.devgrr.springdemo.board;
 import lombok.RequiredArgsConstructor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import net.devgrr.springdemo.board.dto.BoardIdResponse;
 import net.devgrr.springdemo.board.dto.BoardRequest;
 import net.devgrr.springdemo.board.dto.BoardValidationGroups;
 import net.devgrr.springdemo.board.entity.Board;
 import net.devgrr.springdemo.config.exception.BaseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +16,7 @@ import java.util.List;
 
 
 @Validated
-@RequestMapping("/board")
+@RequestMapping("/api/v1/board")
 @RequiredArgsConstructor
 @Tag(name = "BoardController", description = "게시판 API")
 @RestController
@@ -36,21 +38,20 @@ public class BoardController {
 
     @Operation(description = "게시글을 등록한다.")
     @PostMapping
-    // 201
-    public void insertBoard(@Validated(BoardValidationGroups.articleGroup.class) @RequestBody BoardRequest req) {
-        boardService.insertBoard(req);
+    @ResponseStatus(HttpStatus.CREATED)
+    public BoardIdResponse insertBoard(@Validated(BoardValidationGroups.articleGroup.class) @RequestBody BoardRequest req) {
+        return new BoardIdResponse(boardService.insertBoard(req));
     }
 
     @Operation(description = "게시글을 수정한다.")
     @PutMapping
-    // 200
     public void updateBoard(@Validated(BoardValidationGroups.idGroup.class) @RequestBody BoardRequest req) throws BaseException {
         boardService.updateBoard(req);
     }
 
     @Operation(description = "게시글을 삭제한다.")
     @DeleteMapping("/{id}")
-    // 204
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBoard(@PathVariable("id") Integer id) throws BaseException {
         boardService.deleteBoard(id);
     }
