@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class UserRequest {
-	private final String firstName;
-	private final String lastName;
-	private final String email;
-	private final Integer age;
+  private final String firstName;
+  private final String lastName;
+  private final String email;
+  private final Integer age;
 }

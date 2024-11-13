@@ -9,13 +9,15 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class UserResponse {
-	private final Long id;
-	private final String firstName;
-	private final String lastName;
-	private final String email;
-	private final Integer age;
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private final String createdDate;
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	private final String updatedDate;
+  private final Long id;
+  private final String firstName;
+  private final String lastName;
+  private final String email;
+  private final Integer age;
+
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  private final String createdDate;
+
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  private final String updatedDate;
 }

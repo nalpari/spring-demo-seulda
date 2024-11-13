@@ -10,11 +10,11 @@ import net.devgrr.springdemo.model.entity.BaseEntity;
 @Entity
 @Table(name = "board")
 public class Board extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    private String title;
+  private String title;
 
-    private String content;
+  private String content;
 }

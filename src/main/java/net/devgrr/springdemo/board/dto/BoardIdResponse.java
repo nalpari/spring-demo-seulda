@@ -1,5 +1,3 @@
 package net.devgrr.springdemo.board.dto;
 
-public record BoardIdResponse(
-        Integer id
-) {}
+public record BoardIdResponse(Integer id) {}
