@@ -8,6 +8,7 @@ import net.devgrr.springdemo.board.entity.Board;
 import net.devgrr.springdemo.config.exception.BaseException;
 import net.devgrr.springdemo.config.exception.ErrorCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -15,6 +16,7 @@ public class BoardService {
 
   private final BoardRepository boardRepository;
 
+  @Transactional(readOnly = true)
   public List<Board> selectBoard() {
     return boardRepository.findAll();
   }
@@ -27,6 +29,7 @@ public class BoardService {
                 new BaseException(ErrorCode.INVALID_INPUT_VALUE, "Board not found with id: " + id));
   }
 
+  @Transactional
   public Integer insertBoard(BoardRequest req) {
     Board board = new Board();
     board.setTitle(req.title());
