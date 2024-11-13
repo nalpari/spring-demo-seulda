@@ -29,6 +29,7 @@ public class BoardService {
         Board board = new Board();
         board.setTitle(req.title());
         board.setContent(req.content());
+        board.setCreatedAt(LocalDateTime.now());
         return boardRepository.save(board).getId();
     }
 
