@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @RequiredArgsConstructor
 @Service
 public class BoardService {
@@ -20,6 +19,7 @@ public class BoardService {
 
   @Autowired private BoardMapper boardMapper;
 
+  @Transactional(readOnly = true)
   public List<Board> selectBoard() {
     return boardRepository.findAll();
   }
@@ -32,6 +32,7 @@ public class BoardService {
                 new BaseException(ErrorCode.INVALID_INPUT_VALUE, "Board not found with id: " + id));
   }
 
+  @Transactional
   public Board insertBoard(BoardRequest req) {
     Board board = boardMapper.toBoard(req);
     boardRepository.save(board);
