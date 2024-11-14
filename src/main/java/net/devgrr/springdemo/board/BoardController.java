@@ -22,7 +22,7 @@ public class BoardController {
   private final BoardService boardService;
 
   @Operation(description = "게시글 목록을 조회한다.")
-  @GetMapping("/list")
+  @GetMapping
   public List<Board> selectBoard() {
     return boardService.selectBoard();
   }
