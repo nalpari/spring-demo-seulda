@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
-import net.devgrr.springdemo.board.dto.BoardIdResponse;
 import net.devgrr.springdemo.board.dto.BoardRequest;
 import net.devgrr.springdemo.board.entity.Board;
 import org.junit.jupiter.api.DisplayName;
@@ -74,11 +73,10 @@ public class BoardTest {
             .andReturn();
 
     // then
-    BoardIdResponse resData =
+    Board resData =
         objectMapper.readValue(
-            mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
-            BoardIdResponse.class);
-    Board checkData = boardRepository.findById(resData.id()).orElse(null);
+            mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), Board.class);
+    Board checkData = boardRepository.findById(resData.getId()).orElse(null);
 
     assertNotNull(checkData);
     assertTrue(checkData.getTitle().contains(title));

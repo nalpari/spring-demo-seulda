@@ -1,12 +1,13 @@
 package net.devgrr.springdemo.board;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import net.devgrr.springdemo.board.dto.BoardRequest;
 import net.devgrr.springdemo.board.entity.Board;
 import net.devgrr.springdemo.config.exception.BaseException;
 import net.devgrr.springdemo.config.exception.ErrorCode;
+import net.devgrr.springdemo.config.mapStruct.BoardMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
   private final BoardRepository boardRepository;
+
+  @Autowired private BoardMapper boardMapper;
 
   @Transactional(readOnly = true)
   public List<Board> selectBoard() {
@@ -30,24 +33,16 @@ public class BoardService {
   }
 
   @Transactional
-  public Integer insertBoard(BoardRequest req) {
-    Board board = new Board();
-    board.setTitle(req.title());
-    board.setContent(req.content());
-    board.setCreatedAt(LocalDateTime.now());
-    return boardRepository.save(board).getId();
+  public Board insertBoard(BoardRequest req) {
+    Board board = boardMapper.toBoard(req);
+    boardRepository.save(board);
+    return board;
   }
 
   public void updateBoard(BoardRequest req) throws BaseException {
     Board board = selectBoardById(req.id());
-    if (req.title() != null) {
-      board.setTitle(req.title());
-    }
-    if (req.content() != null) {
-      board.setContent(req.content());
-    }
-    board.setUpdatedAt(LocalDateTime.now());
-    boardRepository.save(board);
+    Board updBoard = boardMapper.updateBoardMapper(req, board);
+    boardRepository.save(updBoard);
   }
 
   public void deleteBoard(Integer id) throws BaseException {

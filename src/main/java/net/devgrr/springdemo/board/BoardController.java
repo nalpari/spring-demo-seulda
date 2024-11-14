@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import net.devgrr.springdemo.board.dto.BoardIdResponse;
 import net.devgrr.springdemo.board.dto.BoardRequest;
 import net.devgrr.springdemo.board.dto.BoardValidationGroups;
 import net.devgrr.springdemo.board.entity.Board;
@@ -37,9 +36,9 @@ public class BoardController {
   @Operation(description = "게시글을 등록한다.")
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public BoardIdResponse insertBoard(
+  public Board insertBoard(
       @Validated(BoardValidationGroups.articleGroup.class) @RequestBody BoardRequest req) {
-    return new BoardIdResponse(boardService.insertBoard(req));
+    return boardService.insertBoard(req);
   }
 
   @Operation(description = "게시글을 수정한다.")
