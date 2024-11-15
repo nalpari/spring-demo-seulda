@@ -19,12 +19,12 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
     generate-ddl: true
-  sql:
-    init:
-      platform: h2
-      mode: always
-      schema-locations: classpath:/schema.sql
-      data-locations: classpath:/data.sql
+#  sql:
+#    init:
+#      platform: h2
+#      mode: always
+#      schema-locations: classpath:/schema.sql
+#      data-locations: classpath:/data.sql
 
 logging:
   level:
