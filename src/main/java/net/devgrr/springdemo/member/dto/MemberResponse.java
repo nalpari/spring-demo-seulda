@@ -1,9 +1,9 @@
-package net.devgrr.springdemo.user.dto;
+package net.devgrr.springdemo.member.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 
-public record UserResponse(
+public record MemberResponse(
     Long id,
     String userId,
     String name,

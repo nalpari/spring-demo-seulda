@@ -1,8 +1,8 @@
 package net.devgrr.springdemo.config.mapStruct;
 
-import net.devgrr.springdemo.user.dto.UserRequest;
-import net.devgrr.springdemo.user.dto.UserResponse;
-import net.devgrr.springdemo.user.entity.User;
+import net.devgrr.springdemo.member.dto.MemberRequest;
+import net.devgrr.springdemo.member.dto.MemberResponse;
+import net.devgrr.springdemo.member.entity.Member;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -11,7 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 // import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
-public interface UserMapper {
+public interface MemberMapper {
   //  UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
   @Named("pwEncoder")
@@ -21,7 +21,7 @@ public interface UserMapper {
   }
 
   @Mapping(source = "password", target = "password", qualifiedByName = "pwEncoder")
-  User toUser(UserRequest userRequest);
+  Member toUser(MemberRequest userRequest);
 
-  UserResponse toResponse(User user);
+  MemberResponse toResponse(Member member);
 }

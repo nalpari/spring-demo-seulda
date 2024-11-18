@@ -1,4 +1,4 @@
-package net.devgrr.springdemo.user.entity;
+package net.devgrr.springdemo.member.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,22 +16,24 @@ import net.devgrr.springdemo.model.entity.BaseEntity;
 @Setter
 @Builder
 @Entity
-@Table(name = "users")
+@Table(name = "member")
 @AllArgsConstructor
-public class User extends BaseEntity {
+public class Member extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(unique = true)
+  @Column(nullable = false, unique = true)
   private String userId;
 
+  @Column(nullable = false)
   private String password;
 
+  @Column(nullable = false)
   private String name;
 
-  @Column(unique = true)
+  @Column(nullable = false, unique = true)
   private String email;
 
-  public User() {}
+  public Member() {}
 }
