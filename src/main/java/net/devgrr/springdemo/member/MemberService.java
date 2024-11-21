@@ -43,7 +43,7 @@ public class MemberService {
       throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "이미 존재하는 Email 입니다.");
     }
 
-    Member member = memberMapper.toUser(req);
+    Member member = memberMapper.toMember(req);
     try {
       memberRepository.save(member);
     } catch (Exception e) {
