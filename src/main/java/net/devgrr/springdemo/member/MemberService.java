@@ -31,15 +31,11 @@ public class MemberService {
     return memberMapper.toResponse(member);
   }
 
-  public Member selectUserByEmail(String email) {
-    return memberRepository.findByEmail(email).orElse(null);
-  }
-
   @Transactional
   public MemberResponse insertUser(MemberRequest req) throws BaseException {
-    if (selectUserByUserId(req.userId()) != null) {
+    if (memberRepository.existsByUserId(req.userId())) {
       throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "이미 존재하는 ID 입니다.");
-    } else if (selectUserByEmail(req.email()) != null) {
+    } else if (memberRepository.existsByEmail(req.email())) {
       throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "이미 존재하는 Email 입니다.");
     }
 

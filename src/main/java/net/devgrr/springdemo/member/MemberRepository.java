@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MemberRepository extends JpaRepository<Member, Integer> {
   Optional<Member> findByUserId(String userId);
 
-  Optional<Member> findByEmail(String email);
+  boolean existsByUserId(String userId);
+
+  boolean existsByEmail(String email);
 }
