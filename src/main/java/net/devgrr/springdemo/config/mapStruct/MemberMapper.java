@@ -6,6 +6,7 @@ import net.devgrr.springdemo.member.dto.MemberResponse;
 import net.devgrr.springdemo.member.entity.Member;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -39,4 +40,14 @@ public interface MemberMapper {
   Member toMember(MemberRequest userRequest);
 
   MemberResponse toResponse(Member member);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "userId", ignore = true)
+  @Mapping(target = "password", ignore = true)
+  @Mapping(target = "name", ignore = true)
+  @Mapping(target = "email", ignore = true)
+  @Mapping(target = "role", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "refreshToken", source = "refreshToken")
+  Member updateMemberRefreshToken(Member updateMember, @MappingTarget Member member);
 }

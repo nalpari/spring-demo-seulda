@@ -42,5 +42,8 @@ public class Member extends BaseEntity {
   @Column(nullable = false)
   private MemberRole role;
 
+  @Column(length = 1000)
+  private String refreshToken;
+
   public Member() {}
 }

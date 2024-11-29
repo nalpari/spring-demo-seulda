@@ -3,6 +3,7 @@ package net.devgrr.springdemo.config.exception;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -43,5 +44,11 @@ public class GlobalExceptionHandler {
     final String errorMessage = e.getMessage();
     return ResponseEntity.status(errorCode.getStatus())
         .body(new ErrorResponse(errorCode, errorMessage));
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  protected ResponseEntity<ErrorResponse> handle(AuthenticationException e) {
+    //    System.out.println("error 5 : " + e.getMessage());
+    return ResponseEntity.badRequest().body(new ErrorResponse(ErrorCode.FORBIDDEN));
   }
 }
