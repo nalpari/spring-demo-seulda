@@ -1,4 +1,6 @@
-INSERT INTO users (first_name, last_name, email, age, created_at, updated_at)
-VALUES ('John', 'Doe', 'aaa@naver.com', 30, '2020-01-01 00:00:00', NULL);
-INSERT INTO users (first_name, last_name, email, age, created_at, updated_at)
-VALUES ('Jane', 'Doe', 'bbb@google.com', 25, '2020-01-01 00:00:00', NULL);
+INSERT INTO member (user_id, password, email, name, ROLE, created_at, updated_at)
+VALUES ('user1', '$2a$10$z1NLrjhkoPJYzHucx7XVDeENGlYgs1zPt/hQIgtAqentc.Qrkv7m6', 'user1@naver.com',
+        'user1', 'USER', now(), NULL);
+INSERT INTO member (user_id, password, email, name, ROLE, created_at, updated_at)
+VALUES ('user2', '$2a$10$z1NLrjhkoPJYzHucx7XVDeENGlYgs1zPt/hQIgtAqentc.Qrkv7m6', 'user2@google.com',
+        'user2', 'USER', now(), NULL);
