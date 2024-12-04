@@ -7,7 +7,6 @@ import net.devgrr.springdemo.board.entity.Board;
 import net.devgrr.springdemo.config.exception.BaseException;
 import net.devgrr.springdemo.config.exception.ErrorCode;
 import net.devgrr.springdemo.config.mapStruct.BoardMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
   private final BoardRepository boardRepository;
-
-  @Autowired private BoardMapper boardMapper;
+  private final BoardMapper boardMapper;
 
   @Transactional(readOnly = true)
   public List<Board> selectBoard() {

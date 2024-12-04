@@ -7,7 +7,6 @@ import net.devgrr.springdemo.config.mapStruct.MemberMapper;
 import net.devgrr.springdemo.member.dto.MemberRequest;
 import net.devgrr.springdemo.member.dto.MemberResponse;
 import net.devgrr.springdemo.member.entity.Member;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
   private final MemberRepository memberRepository;
-
-  @Autowired private MemberMapper memberMapper;
+  private final MemberMapper memberMapper;
 
   public Member selectUserByUserId(String userId) {
     return memberRepository.findByUserId(userId).orElse(null);
