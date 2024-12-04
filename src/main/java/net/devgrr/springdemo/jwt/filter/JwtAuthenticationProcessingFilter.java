@@ -22,8 +22,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
-  private static final String NO_CHECK_URL = "/login";
-
   private final JwtService jwtService;
   private final MemberRepository memberRepository;
   private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
@@ -32,11 +30,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-
-    if (request.getRequestURI().equals(NO_CHECK_URL)) {
-      filterChain.doFilter(request, response);
-      return;
-    }
 
     // RefreshToken 존재 -> 유효하면 AccessToken 재발급
     String refreshToken =

@@ -48,10 +48,14 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             (authorizeHttpRequests) ->
                 authorizeHttpRequests
-                    .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
+                    .requestMatchers(
+                        new AntPathRequestMatcher("/h2-console/**"),
+                        new AntPathRequestMatcher("/swagger-ui/**"))
                     .permitAll()
                     .requestMatchers(
-                        new AntPathRequestMatcher("/login"), new AntPathRequestMatcher("/signup"))
+                        new AntPathRequestMatcher("/login"),
+                        new AntPathRequestMatcher("/api/v1/user/signup"),
+                        new AntPathRequestMatcher("/error"))
                     .permitAll()
                     .requestMatchers(new AntPathRequestMatcher("/admin"))
                     .hasRole("ADMIN")
