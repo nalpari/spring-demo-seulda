@@ -27,7 +27,7 @@ public class MemberController {
   }
 
   @Operation(description = "사용자를 생성한다.")
-  @PostMapping
+  @PostMapping("/signup")
   @ResponseStatus(HttpStatus.CREATED)
   public MemberResponse insertUser(
       @Validated(MemberValidationGroup.createGroup.class) @RequestBody MemberRequest req)

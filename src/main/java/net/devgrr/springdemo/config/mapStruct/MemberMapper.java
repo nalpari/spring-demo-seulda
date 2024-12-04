@@ -37,7 +37,7 @@ public interface MemberMapper {
 
   @Mapping(source = "password", target = "password", qualifiedByName = "pwEncoder")
   @Mapping(source = "role", target = "role", qualifiedByName = "toMemberRole")
-  Member toMember(MemberRequest userRequest);
+  Member toMember(MemberRequest memberRequest);
 
   MemberResponse toResponse(Member member);
 

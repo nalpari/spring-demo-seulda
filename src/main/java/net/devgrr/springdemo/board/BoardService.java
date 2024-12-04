@@ -7,6 +7,8 @@ import net.devgrr.springdemo.board.entity.Board;
 import net.devgrr.springdemo.config.exception.BaseException;
 import net.devgrr.springdemo.config.exception.ErrorCode;
 import net.devgrr.springdemo.config.mapStruct.BoardMapper;
+import net.devgrr.springdemo.member.MemberService;
+import net.devgrr.springdemo.member.entity.Member;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BoardService {
 
   private final BoardRepository boardRepository;
+  private final MemberService memberService;
   private final BoardMapper boardMapper;
 
   @Transactional(readOnly = true)
@@ -31,20 +34,27 @@ public class BoardService {
   }
 
   @Transactional
-  public Board insertBoard(BoardRequest req) {
-    Board board = boardMapper.toBoard(req);
+  public Board insertBoard(BoardRequest req, String userId) {
+    Member member = memberService.selectUserByUserId(userId);
+    Board board = boardMapper.toBoard(req, member);
     boardRepository.save(board);
     return board;
   }
 
-  public void updateBoard(BoardRequest req) throws BaseException {
+  public void updateBoard(BoardRequest req, String userId) throws BaseException {
     Board board = selectBoardById(req.id());
+    if (!board.getWriter().getUserId().equals(userId)) {
+      throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "수정 권한이 없습니다.");
+    }
     Board updBoard = boardMapper.updateBoardMapper(req, board);
     boardRepository.save(updBoard);
   }
 
-  public void deleteBoard(Integer id) throws BaseException {
+  public void deleteBoard(Integer id, String userId) throws BaseException {
     Board board = selectBoardById(id);
+    if (!board.getWriter().getUserId().equals(userId)) {
+      throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "삭제 권한이 없습니다.");
+    }
     boardRepository.delete(board);
   }
 }

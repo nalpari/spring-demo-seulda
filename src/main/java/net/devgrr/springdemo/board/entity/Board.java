@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import net.devgrr.springdemo.member.entity.Member;
 import net.devgrr.springdemo.model.entity.BaseEntity;
 
 @Getter
@@ -21,6 +22,8 @@ public class Board extends BaseEntity {
   private String title;
 
   private String content;
+
+  @ManyToOne private Member writer;
 
   public Board() {}
 }
