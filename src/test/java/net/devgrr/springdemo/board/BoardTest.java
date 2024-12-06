@@ -4,60 +4,131 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.devgrr.springdemo.board.dto.BoardRequest;
+import net.devgrr.springdemo.board.dto.BoardResponse;
 import net.devgrr.springdemo.board.entity.Board;
+import net.devgrr.springdemo.config.exception.BaseException;
+import net.devgrr.springdemo.member.MemberRole;
+import net.devgrr.springdemo.member.MemberService;
+import net.devgrr.springdemo.member.dto.MemberRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 @SpringBootTest
 public class BoardTest {
 
+  private static final String USERID = "BoardTestUser";
+  private static final String PASSWORD = "123456789";
+  private static final String BEARER_PREFIX = "Bearer ";
+  private final String url = "/api/v1/board";
+  @Autowired EntityManager em;
+
+  @Value("${jwt.access.header}")
+  private String accessHeader;
+
   @Autowired private MockMvc mockMvc;
-
-  @Autowired private BoardRepository boardRepository;
-
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private BoardRepository boardRepository;
+  @Autowired private BoardService boardService;
+  @Autowired private MemberService memberService;
+  private String accessToken;
+  private int boardId;
+
+  private void clear() {
+    em.clear();
+  }
+
+  @BeforeEach
+  public void init() throws Exception {
+    memberService.insertUser(
+        new MemberRequest(USERID, PASSWORD, "name", "test@test.test", MemberRole.USER.toString()));
+
+    Map<String, String> loginRequest = new HashMap<>();
+    loginRequest.put("userId", USERID);
+    loginRequest.put("password", PASSWORD);
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    accessToken = result.getResponse().getHeader(accessHeader);
+
+    clear();
+  }
+
+  @AfterEach
+  public void cleanup() throws BaseException {
+    memberService.deleteUser(USERID);
+    clear();
+  }
 
   @Test
   @DisplayName("게시글 목록 조회")
+  @Order(3)
   void selectBoardTest() throws Exception {
-    String url = "/api/v1/board/list";
-    MvcResult mvcResult = mockMvc.perform(get(url)).andExpect(status().isOk()).andReturn();
-    String res = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
+    MvcResult mvcResult =
+        mockMvc
+            .perform(get(url).header("Authorization", BEARER_PREFIX + accessToken))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    List<BoardResponse> res =
+        objectMapper.readValue(
+            mvcResult.getResponse().getContentAsByteArray(), new TypeReference<>() {});
   }
 
   @Test
   @DisplayName("게시글 조회")
+  @Order(2)
   void selectBoardByIdTest() throws Exception {
-    // given
-    int id = 1;
-    String url = "/api/v1/board/" + id;
-
     // when
-    MvcResult mvcResult = mockMvc.perform(get(url)).andExpect(status().isOk()).andReturn();
+    MvcResult mvcResult =
+        mockMvc
+            .perform(get(url + "/" + boardId).header("Authorization", BEARER_PREFIX + accessToken))
+            .andExpect(status().isOk())
+            .andReturn();
 
     // then
-    Board resData =
+    BoardResponse resData =
         objectMapper.readValue(
-            mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), Board.class);
+            mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
+            BoardResponse.class);
 
-    assertEquals(id, resData.getId());
+    assertEquals(boardId, resData.id());
   }
 
   @Test
   @DisplayName("게시글 생성")
+  @Order(1)
   void insertBoardTest() throws Exception {
     // given
-    String url = "/api/v1/board";
     String title = "게시글 생성 테스트의 제목";
     String content = "내용입니다.";
     BoardRequest reqData = new BoardRequest(null, title, content);
@@ -68,63 +139,67 @@ public class BoardTest {
             .perform(
                 post(url)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(reqData)))
+                    .content(objectMapper.writeValueAsString(reqData))
+                    .header("Authorization", BEARER_PREFIX + accessToken))
             .andExpect(status().isCreated())
             .andReturn();
 
     // then
-    Board resData =
+    BoardResponse resData =
         objectMapper.readValue(
-            mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), Board.class);
-    Board checkData = boardRepository.findById(resData.getId()).orElse(null);
+            mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8),
+            BoardResponse.class);
+    boardId = resData.id().intValue();
 
-    assertNotNull(checkData);
-    assertTrue(checkData.getTitle().contains(title));
-    assertTrue(checkData.getContent().contains(content));
+    Board checkData = boardService.selectBoardById(boardId);
+
+    assertEquals(title, checkData.getTitle());
+    assertEquals(content, checkData.getContent());
   }
 
   @Test
   @DisplayName("게시글 수정")
+  @Order(4)
   void updateBoardTest() throws Exception {
     // given
-    String url = "/api/v1/board";
-    int id = 1;
     String title = "(수정) 게시글 수정 테스트의 제목";
     String content = "수정된 내용입니다.";
-    BoardRequest reqData = new BoardRequest(id, title, content);
-    Board beforeData = boardRepository.findById(id).orElse(null);
+    BoardRequest reqData = new BoardRequest(boardId, title, content);
+    Board beforeData = boardService.selectBoardById(boardId);
 
     // when
     mockMvc
         .perform(
             put(url)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(reqData)))
+                .content(objectMapper.writeValueAsString(reqData))
+                .header("Authorization", BEARER_PREFIX + accessToken))
         .andExpect(status().isOk())
         .andReturn();
 
     // then
-    Board afterData = boardRepository.findById(id).orElse(null);
-    assertNotNull(afterData);
+    Board afterData = boardService.selectBoardById(boardId);
 
-    assertNotNull(beforeData);
     assertNotEquals(beforeData.getTitle(), afterData.getTitle());
     assertNotEquals(beforeData.getContent(), afterData.getContent());
     assertNotEquals(beforeData.getUpdatedAt(), afterData.getUpdatedAt());
+    assertEquals(title, afterData.getTitle());
+    assertEquals(content, afterData.getContent());
   }
 
   @Test
   @DisplayName("게시글 삭제")
+  @Order(5)
   void deleteBoardTest() throws Exception {
-    // given
-    int id = 5;
-    String url = "/api/v1/board/" + id;
 
     // when
-    mockMvc.perform(delete(url)).andExpect(status().isNoContent()).andReturn();
+    mockMvc
+        .perform(delete(url + "/" + boardId).header("Authorization", BEARER_PREFIX + accessToken))
+        .andExpect(status().isNoContent())
+        .andReturn();
 
     // then
-    Board checkData = boardRepository.findById(id).orElse(null);
+    Board checkData = boardRepository.findById(boardId).orElse(null);
     assertNull(checkData);
   }
 }

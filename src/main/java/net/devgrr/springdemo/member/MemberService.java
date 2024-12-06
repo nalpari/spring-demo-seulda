@@ -45,4 +45,12 @@ public class MemberService {
     }
     return memberMapper.toResponse(member);
   }
+
+  @Transactional
+  public void deleteUser(String userId) throws BaseException {
+    if (!memberRepository.existsByUserId(userId)) {
+      throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "존재하지 않는 ID 입니다.");
+    }
+    memberRepository.deleteByUserId(userId);
+  }
 }
