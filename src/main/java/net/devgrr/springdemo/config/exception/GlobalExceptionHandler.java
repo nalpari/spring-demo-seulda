@@ -9,6 +9,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestControllerAdvice
@@ -50,5 +51,17 @@ public class GlobalExceptionHandler {
   protected ResponseEntity<ErrorResponse> handle(AuthenticationException e) {
     //    System.out.println("error 5 : " + e.getMessage());
     return ResponseEntity.badRequest().body(new ErrorResponse(ErrorCode.FORBIDDEN));
+  }
+
+  @ExceptionHandler(ResponseStatusException.class)
+  protected ResponseEntity<ErrorResponse> handle(ResponseStatusException e) {
+    //    System.out.println("error 6 : " + e.getMessage());
+    if (e.getStatusCode().is4xxClientError()) {
+      return ResponseEntity.badRequest()
+          .body(new ErrorResponse(ErrorCode.INVALID_INPUT_VALUE, e.getMessage()));
+    } else {
+      return ResponseEntity.internalServerError()
+          .body(new ErrorResponse(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+    }
   }
 }
