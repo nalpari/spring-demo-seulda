@@ -51,8 +51,7 @@ public class SecurityConfig {
                     .requestMatchers(
                         new AntPathRequestMatcher("/h2-console/**"),
                         new AntPathRequestMatcher("/swagger-ui/**"),
-                        new AntPathRequestMatcher("/v3/api-docs/**"),
-                        new AntPathRequestMatcher("/api/v1/**")) // 테스트 위해 권한 임시 제거
+                        new AntPathRequestMatcher("/v3/api-docs/**"))
                     .permitAll()
                     .requestMatchers(
                         new AntPathRequestMatcher("/login"),
