@@ -34,6 +34,7 @@ public class SecurityConfig {
   private final ObjectMapper objectMapper;
   private final MemberRepository memberRepository;
   private final JwtService jwtService;
+  private final ApiLoggingFilter apiLoggingFilter;
 
   @Bean
   SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -62,6 +63,7 @@ public class SecurityConfig {
                     .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
+        .addFilterBefore(apiLoggingFilter, LogoutFilter.class)
         .addFilterBefore(jwtAuthenticationProcessingFilter(), LogoutFilter.class)
         .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class);
 
