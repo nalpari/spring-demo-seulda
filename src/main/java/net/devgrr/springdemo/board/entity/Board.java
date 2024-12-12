@@ -1,6 +1,7 @@
 package net.devgrr.springdemo.board.entity;
 
 import jakarta.persistence.*;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,8 @@ public class Board extends BaseEntity {
   @ManyToOne
   @JoinColumn(name = "member_id", nullable = false)
   private Member writer;
+
+  @ManyToMany private Set<Member> likes;
 
   public Board() {}
 }

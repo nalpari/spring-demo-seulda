@@ -57,4 +57,22 @@ public class BoardService {
     }
     boardRepository.delete(board);
   }
+
+  public void likeBoard(Integer id, String userId) throws BaseException {
+    Board board = selectBoardById(id);
+
+    if (board.getWriter().getUserId().equals(userId)) {
+      throw new BaseException(ErrorCode.INVALID_INPUT_VALUE, "본인 게시글은 추천할 수 없습니다.");
+    }
+
+    if (board.getLikes().stream().anyMatch(member -> member.getUserId().equals(userId))) {
+      // unlike
+      board.getLikes().removeIf(member -> member.getUserId().equals(userId));
+      boardRepository.save(board);
+    } else {
+      // like
+      board.getLikes().add(memberService.selectUserByUserId(userId));
+      boardRepository.save(board);
+    }
+  }
 }

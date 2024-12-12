@@ -9,5 +9,6 @@ public record BoardResponse(
     String content,
     String writerId,
     String writerName,
+    Integer likeCount,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime createdAt,
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime updatedAt) {}

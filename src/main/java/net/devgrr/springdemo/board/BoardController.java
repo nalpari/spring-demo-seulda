@@ -66,4 +66,13 @@ public class BoardController {
       throws BaseException {
     boardService.deleteBoard(id, principal.getName());
   }
+
+  @Operation(description = "게시글을 추천 또는 취소한다.")
+  @PutMapping("/like")
+  public void likeBoard(
+      @Validated(BoardValidationGroups.idGroup.class) @RequestBody BoardRequest req,
+      Principal principal)
+      throws BaseException {
+    boardService.likeBoard(req.id(), principal.getName());
+  }
 }
