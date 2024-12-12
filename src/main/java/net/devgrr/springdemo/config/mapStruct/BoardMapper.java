@@ -19,7 +19,7 @@ public interface BoardMapper {
 
   @Named("likeToCount")
   static int likeToCount(Set<Member> likeMember) {
-    return likeMember.size();
+    return likeMember != null ? likeMember.size() : 0;
   }
 
   @Mapping(target = "id", ignore = true)
