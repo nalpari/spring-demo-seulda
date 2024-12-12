@@ -79,6 +79,10 @@ public class BoardTest {
 
     accessToken = result.getResponse().getHeader(accessHeader);
 
+    BoardRequest board = new BoardRequest(null, "테스트용 초기 게시글 제목", "테스트용 초기 게시글 내용");
+    Board resBoard = boardService.insertBoard(board, USERID);
+    boardId = resBoard.getId();
+
     clear();
   }
 
