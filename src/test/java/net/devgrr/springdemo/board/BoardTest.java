@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.springframework.test.web.servlet.MvcResult;
 public class BoardTest {
 
   private static final String USERID = "BoardTestUser";
+  private static final String USERID2 = "TestUser2";
   private static final String PASSWORD = "123456789";
   private static final String BEARER_PREFIX = "Bearer ";
   private final String url = "/api/v1/board";
@@ -53,6 +55,7 @@ public class BoardTest {
   @Autowired private BoardService boardService;
   @Autowired private MemberService memberService;
   private String accessToken;
+  private String accessToken2;
   private int boardId;
 
   private void clear() {
@@ -61,13 +64,18 @@ public class BoardTest {
 
   @BeforeEach
   public void init() throws Exception {
+    // user1 insert
     memberService.insertUser(
         new MemberRequest(USERID, PASSWORD, "name", "test@test.test", MemberRole.USER.toString()));
+    // user2 insert
+    memberService.insertUser(
+        new MemberRequest(
+            USERID2, PASSWORD, "name2", "test2@test2.test2", MemberRole.USER.toString()));
 
+    // user1 get token
     Map<String, String> loginRequest = new HashMap<>();
     loginRequest.put("userId", USERID);
     loginRequest.put("password", PASSWORD);
-
     MvcResult result =
         mockMvc
             .perform(
@@ -76,8 +84,20 @@ public class BoardTest {
                     .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
             .andReturn();
-
     accessToken = result.getResponse().getHeader(accessHeader);
+    // user2 get token
+    Map<String, String> loginRequest2 = new HashMap<>();
+    loginRequest2.put("userId", USERID2);
+    loginRequest2.put("password", PASSWORD);
+    MvcResult result2 =
+        mockMvc
+            .perform(
+                post("/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest2)))
+            .andExpect(status().isOk())
+            .andReturn();
+    accessToken2 = result2.getResponse().getHeader(accessHeader);
 
     BoardRequest board = new BoardRequest(null, "테스트용 초기 게시글 제목", "테스트용 초기 게시글 내용");
     Board resBoard = boardService.insertBoard(board, USERID);
@@ -89,10 +109,12 @@ public class BoardTest {
   @AfterEach
   public void cleanup() throws BaseException {
     memberService.deleteUser(USERID);
+    memberService.deleteUser(USERID2);
     clear();
   }
 
   @Test
+  @Transactional
   @DisplayName("게시글 목록 조회")
   @Order(3)
   void selectBoardTest() throws Exception {
@@ -109,6 +131,7 @@ public class BoardTest {
   }
 
   @Test
+  @Transactional
   @DisplayName("게시글 조회")
   @Order(2)
   void selectBoardByIdTest() throws Exception {
@@ -129,6 +152,7 @@ public class BoardTest {
   }
 
   @Test
+  @Transactional
   @DisplayName("게시글 생성")
   @Order(1)
   void insertBoardTest() throws Exception {
@@ -192,8 +216,9 @@ public class BoardTest {
   }
 
   @Test
+  @Transactional
   @DisplayName("게시글 삭제")
-  @Order(5)
+  @Order(7)
   void deleteBoardTest() throws Exception {
 
     // when
@@ -205,5 +230,63 @@ public class BoardTest {
     // then
     Board checkData = boardRepository.findById(boardId).orElse(null);
     assertNull(checkData);
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("게시글 추천")
+  @Order(5)
+  void likeBoardTest() throws Exception {
+    // given
+    BoardRequest reqData = new BoardRequest(boardId, null, null);
+
+    // when
+    mockMvc
+        .perform(
+            put(url + "/like")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqData))
+                .header("Authorization", BEARER_PREFIX + accessToken)) // user1
+        .andExpect(status().isBadRequest())
+        .andReturn();
+    mockMvc
+        .perform(
+            put(url + "/like")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(reqData))
+                .header("Authorization", BEARER_PREFIX + accessToken2)) // user2
+        .andExpect(status().isOk())
+        .andReturn();
+
+    // then
+    Board checkData = boardRepository.findById(boardId).orElse(null);
+    assertNotNull(checkData);
+    assertEquals(1, checkData.getLikes().size());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("게시글 추천 취소")
+  @Order(6)
+  void unlikeBoardTest() throws Exception {
+    // given
+    BoardRequest reqData = new BoardRequest(boardId, null, null);
+
+    // when
+    for (int i = 0; i < 2; i++) {
+      mockMvc
+          .perform(
+              put(url + "/like")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(reqData))
+                  .header("Authorization", BEARER_PREFIX + accessToken2)) // user2
+          .andExpect(status().isOk())
+          .andReturn();
+    }
+
+    // then
+    Board checkData = boardRepository.findById(boardId).orElse(null);
+    assertNotNull(checkData);
+    assertEquals(0, checkData.getLikes().size());
   }
 }
