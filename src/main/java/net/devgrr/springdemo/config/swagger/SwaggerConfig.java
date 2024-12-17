@@ -32,32 +32,39 @@ public class SwaggerConfig {
 
   @Bean
   public OpenAPI openAPI() {
+
     OpenAPI openAPI = new OpenAPI();
     openAPI.info(new Info().title("DEMO API").version("1.0").description("DEMO API Documentation"));
+
+    // Security Scheme
     openAPI.addSecurityItem(new SecurityRequirement().addList(accessHeader));
     openAPI.addSecurityItem(new SecurityRequirement().addList(refreshHeader));
-    openAPI.components(
-        new Components()
-            .addSecuritySchemes(
-                accessHeader,
-                new SecurityScheme()
-                    .name(accessHeader)
-                    .type(SecurityScheme.Type.HTTP)
-                    .scheme("bearer")
-                    .in(SecurityScheme.In.HEADER)
-                    .bearerFormat("JWT"))
-            .addSecuritySchemes(
-                refreshHeader,
-                new SecurityScheme()
-                    .name(refreshHeader)
-                    .type(SecurityScheme.Type.HTTP)
-                    .scheme("bearer")
-                    .in(SecurityScheme.In.HEADER)
-                    .bearerFormat("JWT")));
+    openAPI.components(createJwtComponents());
+
     // login endpoint
     openAPI.path("/login", createLoginPathItem());
 
     return openAPI;
+  }
+
+  private Components createJwtComponents() {
+    return new Components()
+        .addSecuritySchemes(
+            accessHeader,
+            new SecurityScheme()
+                .name(accessHeader)
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .in(SecurityScheme.In.HEADER)
+                .bearerFormat("JWT"))
+        .addSecuritySchemes(
+            refreshHeader,
+            new SecurityScheme()
+                .name(refreshHeader)
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .in(SecurityScheme.In.HEADER)
+                .bearerFormat("JWT"));
   }
 
   private PathItem createLoginPathItem() {
