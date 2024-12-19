@@ -53,18 +53,18 @@ public class SwaggerConfig {
             accessHeader,
             new SecurityScheme()
                 .name(accessHeader)
+                .description("Format: {access_token}")
                 .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
                 .in(SecurityScheme.In.HEADER)
+                .scheme("bearer")
                 .bearerFormat("JWT"))
         .addSecuritySchemes(
             refreshHeader,
             new SecurityScheme()
                 .name(refreshHeader)
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .in(SecurityScheme.In.HEADER)
-                .bearerFormat("JWT"));
+                .description("Format: Bearer {refresh_token}")
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER));
   }
 
   private PathItem createLoginPathItem() {
