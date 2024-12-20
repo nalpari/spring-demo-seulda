@@ -24,8 +24,9 @@ public class JsonUsernamePasswordAuthenticationFilter
   private static final String CONTENT_TYPE = "application/json";
   private static final String USERID_KEY = "userId";
   private static final String PASSWORD_KEY = "password";
+
   private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
-      new AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL); // , HTTP_METHOD);
+      new AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD);
   private final ObjectMapper objectMapper;
 
   public JsonUsernamePasswordAuthenticationFilter(ObjectMapper objectMapper) {
@@ -38,12 +39,7 @@ public class JsonUsernamePasswordAuthenticationFilter
       HttpServletRequest request, HttpServletResponse response)
       throws AuthenticationException, IOException, ServletException {
 
-    if (!HTTP_METHOD.equals(request.getMethod())) {
-      throw new AuthenticationServiceException(
-          "Authentication Method not supported: " + request.getMethod());
-    }
-
-    if (request.getContentType() == null || !request.getContentType().equals(CONTENT_TYPE)) {
+    if (!request.getContentType().equals(CONTENT_TYPE)) {
       throw new AuthenticationServiceException(
           "Authentication Content-Type not supported: " + request.getContentType());
     }

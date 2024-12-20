@@ -22,6 +22,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -65,7 +66,8 @@ public class SecurityConfig {
                     .authenticated())
         .addFilterBefore(apiLoggingFilter, LogoutFilter.class)
         .addFilterBefore(jwtAuthenticationProcessingFilter(), LogoutFilter.class)
-        .addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class);
+        .addFilterBefore(
+            jsonUsernamePasswordLoginFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
   }
