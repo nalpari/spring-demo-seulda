@@ -1,5 +1,6 @@
 package net.devgrr.springdemo.member;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class MemberController {
   }
 
   @Operation(description = "사용자를 생성한다.")
+  @JsonView(MemberValidationGroup.createGroup.class)
   @PostMapping("/signup")
   @ResponseStatus(HttpStatus.CREATED)
   public MemberResponse insertUser(

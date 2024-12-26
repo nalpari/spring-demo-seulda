@@ -1,6 +1,7 @@
 package net.devgrr.springdemo.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
@@ -18,9 +19,11 @@ public abstract class BaseEntity {
 
   @CreatedDate
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  @Schema(description = "생성 일자")
   private LocalDateTime createdAt;
 
   @LastModifiedDate
   @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+  @Schema(description = "수정 일자")
   private LocalDateTime updatedAt;
 }

@@ -1,5 +1,6 @@
 package net.devgrr.springdemo.board;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.Principal;
@@ -41,6 +42,7 @@ public class BoardController {
   }
 
   @Operation(description = "게시글을 등록한다.")
+  @JsonView(BoardValidationGroups.articleGroup.class)
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public BoardResponse insertBoard(
@@ -53,8 +55,7 @@ public class BoardController {
   @Operation(description = "게시글을 수정한다.")
   @PutMapping
   public void updateBoard(
-      @Validated(BoardValidationGroups.idGroup.class) @RequestBody BoardRequest req,
-      Principal principal)
+      @Validated(BoardRequest.class) @RequestBody BoardRequest req, Principal principal)
       throws BaseException {
     boardService.updateBoard(req, principal.getName());
   }
@@ -68,6 +69,7 @@ public class BoardController {
   }
 
   @Operation(description = "게시글을 추천 또는 취소한다.")
+  @JsonView(BoardValidationGroups.idGroup.class)
   @PutMapping("/like")
   public void likeBoard(
       @Validated(BoardValidationGroups.idGroup.class) @RequestBody BoardRequest req,

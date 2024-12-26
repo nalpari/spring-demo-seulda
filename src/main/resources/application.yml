@@ -35,6 +35,12 @@ logging:
     org.hibernate.SQL: debug
     net.devgrr.springdemo: debug
 
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: method
+    doc-expansion: none
+
 management:
   endpoints:
     web:
