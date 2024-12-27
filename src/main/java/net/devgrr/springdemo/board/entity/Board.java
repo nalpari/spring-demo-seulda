@@ -23,9 +23,11 @@ public class Board extends BaseEntity {
   @Schema(description = "게시글 ID")
   private Integer id;
 
+  @Column(nullable = false)
   @Schema(description = "게시글 제목")
   private String title;
 
+  @Column(nullable = false)
   @Schema(description = "게시글 내용")
   private String content;
 
@@ -37,6 +39,9 @@ public class Board extends BaseEntity {
   @ManyToMany
   @Schema(description = "추천")
   private Set<Member> likes;
+
+  @Schema(description = "태그")
+  private String tag;
 
   public Board() {}
 }

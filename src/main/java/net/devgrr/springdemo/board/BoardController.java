@@ -27,10 +27,14 @@ public class BoardController {
   private final BoardService boardService;
   private final BoardMapper boardMapper;
 
-  @Operation(description = "게시글 목록을 조회한다.")
+  @Operation(description = "게시글 목록을 조회한다. 태그가 있다면 태그가 포함된 게시글을 조회한다.")
   @GetMapping
-  public List<BoardResponse> selectBoard() {
-    List<Board> boards = boardService.selectBoard();
+  public List<BoardResponse> selectBoard(
+      @RequestParam(value = "tag", required = false) String tag) {
+    List<Board> boards =
+        (tag != null && !tag.trim().isEmpty())
+            ? boardService.selectBoardByTag(tag)
+            : boardService.selectBoard();
     return boards.stream().map(boardMapper::toResponse).collect(Collectors.toList());
   }
 
@@ -55,7 +59,8 @@ public class BoardController {
   @Operation(description = "게시글을 수정한다.")
   @PutMapping
   public void updateBoard(
-      @Validated(BoardRequest.class) @RequestBody BoardRequest req, Principal principal)
+      @Validated(BoardValidationGroups.articleGroup.class) @RequestBody BoardRequest req,
+      Principal principal)
       throws BaseException {
     boardService.updateBoard(req, principal.getName());
   }
