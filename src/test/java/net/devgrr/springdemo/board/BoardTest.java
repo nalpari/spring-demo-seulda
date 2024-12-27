@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,10 @@ public class BoardTest {
             .andReturn();
     accessToken2 = result2.getResponse().getHeader(accessHeader);
 
-    BoardRequest board = new BoardRequest(null, "테스트용 초기 게시글 제목", "테스트용 초기 게시글 내용");
+    // 게시글 생성 by user1
+    BoardRequest board =
+        new BoardRequest(
+            null, "테스트용 초기 게시글 제목", "테스트용 초기 게시글 내용", Collections.singletonList("초기게시글태그"));
     Board resBoard = boardService.insertBoard(board, USERID);
     boardId = resBoard.getId();
 
@@ -118,13 +122,14 @@ public class BoardTest {
   @DisplayName("게시글 목록 조회")
   @Order(3)
   void selectBoardTest() throws Exception {
-
+    // when
     MvcResult mvcResult =
         mockMvc
             .perform(get(url).header("Authorization", BEARER_PREFIX + accessToken))
             .andExpect(status().isOk())
             .andReturn();
 
+    // then
     List<BoardResponse> res =
         objectMapper.readValue(
             mvcResult.getResponse().getContentAsByteArray(), new TypeReference<>() {});
@@ -132,13 +137,39 @@ public class BoardTest {
 
   @Test
   @Transactional
-  @DisplayName("게시글 조회")
-  @Order(2)
-  void selectBoardByIdTest() throws Exception {
+  @DisplayName("태그가 포함된 게시글 목록 조회")
+  @Order(4)
+  void selectBoardByTagTest() throws Exception {
+    // given
+    String tag = "초기게시글태그";
+    String requestUrl = url + "?tag=" + tag;
+
     // when
     MvcResult mvcResult =
         mockMvc
-            .perform(get(url + "/" + boardId).header("Authorization", BEARER_PREFIX + accessToken))
+            .perform(get(requestUrl).header("Authorization", BEARER_PREFIX + accessToken))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    // then
+    List<BoardResponse> res =
+        objectMapper.readValue(
+            mvcResult.getResponse().getContentAsByteArray(), new TypeReference<>() {});
+    assertEquals(1, res.size());
+  }
+
+  @Test
+  @Transactional
+  @DisplayName("게시글 조회")
+  @Order(2)
+  void selectBoardByIdTest() throws Exception {
+    // given
+    String requestUrl = url + "/" + boardId;
+
+    // when
+    MvcResult mvcResult =
+        mockMvc
+            .perform(get(requestUrl).header("Authorization", BEARER_PREFIX + accessToken))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -159,7 +190,8 @@ public class BoardTest {
     // given
     String title = "게시글 생성 테스트의 제목";
     String content = "내용입니다.";
-    BoardRequest reqData = new BoardRequest(null, title, content);
+    List<String> tag = List.of("태그1", "태그2");
+    BoardRequest reqData = new BoardRequest(null, title, content, tag);
 
     // when
     MvcResult mvcResult =
@@ -183,16 +215,18 @@ public class BoardTest {
 
     assertEquals(title, checkData.getTitle());
     assertEquals(content, checkData.getContent());
+    assertEquals(String.join(",", tag), checkData.getTag());
   }
 
   @Test
   @DisplayName("게시글 수정")
-  @Order(4)
+  @Order(5)
   void updateBoardTest() throws Exception {
     // given
     String title = "(수정) 게시글 수정 테스트의 제목";
     String content = "수정된 내용입니다.";
-    BoardRequest reqData = new BoardRequest(boardId, title, content);
+    List<String> tag = List.of("수정태그1", "수정태그2");
+    BoardRequest reqData = new BoardRequest(boardId, title, content, tag);
     Board beforeData = boardService.selectBoardById(boardId);
 
     // when
@@ -211,19 +245,23 @@ public class BoardTest {
     assertNotEquals(beforeData.getTitle(), afterData.getTitle());
     assertNotEquals(beforeData.getContent(), afterData.getContent());
     assertNotEquals(beforeData.getUpdatedAt(), afterData.getUpdatedAt());
+    assertNotEquals(beforeData.getTag(), afterData.getTag());
     assertEquals(title, afterData.getTitle());
     assertEquals(content, afterData.getContent());
+    assertEquals(String.join(",", tag), afterData.getTag());
   }
 
   @Test
   @Transactional
   @DisplayName("게시글 삭제")
-  @Order(7)
+  @Order(8)
   void deleteBoardTest() throws Exception {
+    // given
+    String requestUrl = url + "/" + boardId;
 
     // when
     mockMvc
-        .perform(delete(url + "/" + boardId).header("Authorization", BEARER_PREFIX + accessToken))
+        .perform(delete(requestUrl).header("Authorization", BEARER_PREFIX + accessToken))
         .andExpect(status().isNoContent())
         .andReturn();
 
@@ -235,15 +273,16 @@ public class BoardTest {
   @Test
   @Transactional
   @DisplayName("게시글 추천")
-  @Order(5)
+  @Order(6)
   void likeBoardTest() throws Exception {
     // given
-    BoardRequest reqData = new BoardRequest(boardId, null, null);
+    BoardRequest reqData = new BoardRequest(boardId, null, null, null);
+    String requestUrl = url + "/like";
 
     // when
     mockMvc
         .perform(
-            put(url + "/like")
+            put(requestUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reqData))
                 .header("Authorization", BEARER_PREFIX + accessToken)) // user1
@@ -251,7 +290,7 @@ public class BoardTest {
         .andReturn();
     mockMvc
         .perform(
-            put(url + "/like")
+            put(requestUrl)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(reqData))
                 .header("Authorization", BEARER_PREFIX + accessToken2)) // user2
@@ -267,16 +306,17 @@ public class BoardTest {
   @Test
   @Transactional
   @DisplayName("게시글 추천 취소")
-  @Order(6)
+  @Order(7)
   void unlikeBoardTest() throws Exception {
     // given
-    BoardRequest reqData = new BoardRequest(boardId, null, null);
+    BoardRequest reqData = new BoardRequest(boardId, null, null, null);
+    String requestUrl = url + "/like";
 
     // when
     for (int i = 0; i < 2; i++) {
       mockMvc
           .perform(
-              put(url + "/like")
+              put(requestUrl)
                   .contentType(MediaType.APPLICATION_JSON)
                   .content(objectMapper.writeValueAsString(reqData))
                   .header("Authorization", BEARER_PREFIX + accessToken2)) // user2
