@@ -12,6 +12,7 @@ import net.devgrr.springdemo.member.entity.Member;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class BoardService {
@@ -20,7 +21,6 @@ public class BoardService {
   private final MemberService memberService;
   private final BoardMapper boardMapper;
 
-  @Transactional(readOnly = true)
   public List<Board> selectBoard() {
     return boardRepository.findAll();
   }
@@ -45,6 +45,7 @@ public class BoardService {
     return board;
   }
 
+  @Transactional
   public void updateBoard(BoardRequest req, String userId) throws BaseException {
     Board board = selectBoardById(req.id());
     if (!board.getWriter().getUserId().equals(userId)) {
@@ -54,6 +55,7 @@ public class BoardService {
     boardRepository.save(updBoard);
   }
 
+  @Transactional
   public void deleteBoard(Integer id, String userId) throws BaseException {
     Board board = selectBoardById(id);
     if (!board.getWriter().getUserId().equals(userId)) {
@@ -62,6 +64,7 @@ public class BoardService {
     boardRepository.delete(board);
   }
 
+  @Transactional
   public void likeBoard(Integer id, String userId) throws BaseException {
     Board board = selectBoardById(id);
 
