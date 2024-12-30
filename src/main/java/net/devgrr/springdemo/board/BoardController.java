@@ -27,13 +27,17 @@ public class BoardController {
   private final BoardService boardService;
   private final BoardMapper boardMapper;
 
-  @Operation(description = "게시글 목록을 조회한다. 태그가 있다면 태그가 포함된 게시글을 조회한다.")
+  @Operation(description = "게시글 목록을 조회한다. 검색 조건이 있다면 조건 키워드가 포함된 게시글을 조회한다.")
   @GetMapping
   public List<BoardResponse> selectBoard(
+      @RequestParam(value = "title", required = false) String title,
+      @RequestParam(value = "content", required = false) String content,
       @RequestParam(value = "tag", required = false) String tag) {
     List<Board> boards =
-        (tag != null && !tag.trim().isEmpty())
-            ? boardService.selectBoardByTag(tag)
+        (title != null && !title.trim().isEmpty())
+                || (content != null && !content.trim().isEmpty())
+                || (tag != null && !tag.trim().isEmpty())
+            ? boardService.selectBoardByKeywords(title, content, tag)
             : boardService.selectBoard();
     return boards.stream().map(boardMapper::toResponse).collect(Collectors.toList());
   }

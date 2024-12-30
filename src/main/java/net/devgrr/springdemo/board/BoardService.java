@@ -33,8 +33,9 @@ public class BoardService {
                 new BaseException(ErrorCode.INVALID_INPUT_VALUE, "Board not found with id: " + id));
   }
 
-  public List<Board> selectBoardByTag(String tag) {
-    return boardRepository.findAllByTagContaining(tag);
+  public List<Board> selectBoardByKeywords(String title, String content, String tag) {
+    return boardRepository.findAllByTitleContainingOrContentContainingOrTagContaining(
+        title, content, tag);
   }
 
   @Transactional
