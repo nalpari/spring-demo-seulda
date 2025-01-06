@@ -12,8 +12,16 @@ public record CommentRequest(
         @JsonView(CommentValidationGroups.createGroup.class)
         Integer boardId,
     @Schema(description = "댓글 ID")
-        @NotNull(message = "필수값: id", groups = CommentValidationGroups.updateGroup.class)
-        @JsonView(CommentValidationGroups.updateGroup.class)
+        @NotNull(
+            message = "필수값: id",
+            groups = {
+              CommentValidationGroups.updateGroup.class,
+              CommentValidationGroups.idGroup.class
+            })
+        @JsonView({
+          CommentValidationGroups.updateGroup.class,
+          CommentValidationGroups.idGroup.class
+        })
         Integer id,
     @Schema(description = "부모 댓글 ID") @JsonView(CommentValidationGroups.createGroup.class)
         Integer parentCommentId,
